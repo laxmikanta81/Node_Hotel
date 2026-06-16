@@ -34,9 +34,6 @@ app.get('/menu',async(req,res)=>{
 })
 
 
-
-
-
 app.post('/person',async(req,res)=>{
   try{
   const data=req.body;
