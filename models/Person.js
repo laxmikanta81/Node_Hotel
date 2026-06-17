@@ -1,4 +1,6 @@
 const mongoose=require('mongoose');
+const bcrypt = require('bcrypt');
+
 const personSchema=new mongoose.Schema({
     name:{
         type:String,
@@ -22,7 +24,15 @@ const personSchema=new mongoose.Schema({
     },salary:{
         type:Number,
         required:true
+    },username:{
+        type:String,
+        required:true,
+        unique:true
+    },password:{
+        type:String,
+        required:true,
     }
 });
+
 const Person=mongoose.model('Person',personSchema);
 module.exports=Person;
