@@ -2,14 +2,15 @@ const passport=require('passport');
 const LocalStrategy=require('passport-local').Strategy;
 const Person=require('./models/Person');
 const bcrypt = require('bcrypt');
-passport.use(new LocalStrategy(async (username, password, done) => {
+passport.use(new LocalStrategy(async (Username, password, done) => {
   try {
-    const user = await Person.findOne({ username });
+    console.log('recived credential',Username,password)
+    const user = await Person.findOne({ username:Username });
     if (!user) {
       return done(null, false, { message: 'Incorrect username.' });
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch =user.password === password ? true : false;
     if (isPasswordMatch) {
       return done(null, user);
     } else {
