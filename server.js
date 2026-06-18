@@ -19,7 +19,7 @@ app.use(logRequest);
 
 app.use(passport.initialize());
 const localAuthMiddleware = passport.authenticate('local', {session: false})
-app.get('/',passport.authenticate('LocalStrategy',{session: false}),(req, res) => {
+app.get('/',localAuthMiddleware,(req, res) => {
   res.send('WELCOME TO HOTEL');
 })
 app.post('/menu',async(req,res)=>{
