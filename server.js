@@ -49,16 +49,12 @@ app.get('/menu',async(req,res)=>{
 
 app.post('/person', async (req, res) => {
   try {
-    const data = req.body;
-    // Hash password before saving
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    data.password = hashedPassword;
-
-    const newPerson = new Person(data);
-    const response = await newPerson.save();
-    res.status(200).json(response);
+    const data = req.body; // taking data directly from request body
+    const newPerson = new Person(data); // creating new Person document
+    await newPerson.save(); // saving to database
+    res.status(200).json(newPerson); // sending back saved document
   } catch (err) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: err.message });
   }
 });
 //get method to get the person details
