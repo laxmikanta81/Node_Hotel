@@ -6,6 +6,7 @@ const MenuItem=require('./models/MenuItem');
 const bodyParser=require('body-parser');
 const passport = require('./auth');
 const bcrypt = require('bcrypt');
+const{jwtAuthMiddleware,geneateToken}=require('./jwt');
 app.use(bodyParser.json());//req.body
  
 //middleware funtion
@@ -47,18 +48,45 @@ app.get('/menu',async(req,res)=>{
 })
 
 
-app.post('/person', async (req, res) => {
+app.post('/signup', async (req, res) => {
   try {
     const data = req.body; // taking data directly from request body
     const newPerson = new Person(data); // creating new Person document
     await newPerson.save(); // saving to database
-    res.status(200).json(newPerson); // sending back saved document
+    console.log('data saved');
+    const payload={
+      id:newPerson.id,
+      username:newPerson.username
+    }
+    const token=geneateToken(payload);
+    console.log("Token is :",token);
+    res.status(200).json({newPerson:newPerson,token:token}); // sending back saved document
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+app.post('/login',async(req,res)=>{
+  try{
+    const{username,password}=req.body;
+    const user =await Person.findOne({username:username});
+    if(!user ||!(await user.comparePassword(password))){
+      return res.status(401).json({error:'Invalid Username or Password'});
+    }
+    const payload={
+      id:user.id,
+      username:user.username
+    }
+    const token=geneateToken(payload);
+     res.status(200).json({ token });
+
+    //return token as response
+  }catch(err){
+    console.error(err);
+    res.status(500).json({error:'Internal Server Error'});
+  }
+});
 //get method to get the person details
-app.get('/person',localAuthMiddleware,async(req,res)=>{
+app.get('/person',jwtAuthMiddleware,async(req,res)=>{
   try{
     const data=await Person.find();
     console.log('data fatched successfully');
@@ -67,7 +95,7 @@ app.get('/person',localAuthMiddleware,async(req,res)=>{
       console.log(err);
       res.status(500).json({error:'internal server error'});
   }
-})
+}) 
   
 // app.get('/hi', (req, res) => {
 //   res.send('how can i help you');
